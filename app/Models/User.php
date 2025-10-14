@@ -20,7 +20,7 @@ class User extends Authenticatable
         'city',
         'address',
         'password',
-        'profile'
+        'profile_pic'
     ];
 
     protected $hidden = [
