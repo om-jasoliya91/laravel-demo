@@ -16,10 +16,14 @@ Route::get('/', function () {
 Route::get('/register', [RegisterController::class, 'registerView'])->name('register.view');
 Route::post('/register', [RegisterController::class, 'registerAdd'])->name('register.post');
 
+// Login Routes
 Route::get('/login', [LoginController::class, 'loginView'])->name('login.view');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.post');
-Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('student/dashboard', [UserController::class, 'dashboardView']);
 
-Route::get('admin/dashboard', [AdminController::class, 'adminDashboardView'])->name('admin.dashboard');
+Route::middleware(['authCheck'])->group(function () {
+    Route::get('admin/dashboard', [AdminController::class, 'adminDashboardView'])->name('admin.dashboard');
+    Route::get('student/dashboard', [UserController::class, 'dashboardView'])->name('student.dashboard');
+});

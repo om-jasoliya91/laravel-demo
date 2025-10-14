@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-// use Illuminate\Support\Facades\Session;
 
 class LoginController extends Controller
 {
@@ -29,20 +28,20 @@ class LoginController extends Controller
             $request->session()->put('user_name', $user->name);
             $request->session()->put('user_role', $user->role);
 
-            // Role-based redirect
+            // Redirect by role
             if ($user->role == 0) {
-                return redirect('/admin/dashboard')->with('success', 'Admin Login Successful');
+                return redirect()->route('admin.dashboard')->with('success', 'Welcome Admin!');
             } else {
-                return redirect('/student/dashboard')->with('success', 'Login Successful');
+                return redirect()->route('student.dashboard')->with('success', 'Welcome Student!');
             }
         }
 
-        return redirect()->back()->with('error', 'Email and password do not match');
+        return redirect()->back()->with('error', 'Invalid email or password.');
     }
 
     public function logout(Request $request)
     {
-        $request->session()->flush();  // remove all session data
-        return redirect('/login')->with('success', 'Logged out successfully');
+        $request->session()->flush();
+        return redirect()->route('login.view')->with('success', 'You have logged out successfully.');
     }
 }

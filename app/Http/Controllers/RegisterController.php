@@ -10,12 +10,11 @@ class RegisterController extends Controller
 {
     public function registerView()
     {
-        return view('register'); // Blade view
+        return view('register');
     }
 
     public function registerAdd(Request $request)
     {
-        // Validate form
         $validated = $request->validate([
             'name' => 'required|string|min:2|max:255',
             'email' => 'required|email|unique:users,email',
@@ -29,7 +28,7 @@ class RegisterController extends Controller
         // Hash password
         $validated['password'] = Hash::make($validated['password']);
 
-        // Handle profile upload
+        // Upload image
         if ($request->hasFile('profile_pic')) {
             $file = $request->file('profile_pic');
             $filename = time() . '_' . $file->getClientOriginalName();
@@ -37,12 +36,11 @@ class RegisterController extends Controller
             $validated['profile_pic'] = $path;
         }
 
-        // Default role = 1 (user)
+        // Default role (1 = student)
         $validated['role'] = 1;
 
-        // Save user
         User::create($validated);
 
-        return redirect()->back()->with('success', 'Congratulations! Your account has been created successfully.');
+        return redirect()->route('login.view')->with('success', 'Account created successfully! Please log in.');
     }
 }

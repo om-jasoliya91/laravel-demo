@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->tinyInteger('role')->default(1);  // 0=admin, 1=user
+            $table->tinyInteger('role')->default(1);  // 0 = Admin, 1 = User
             $table->integer('age')->nullable();
             $table->string('city')->nullable();
             $table->string('address')->nullable();
