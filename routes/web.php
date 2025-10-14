@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -18,7 +18,8 @@ Route::post('/register', [RegisterController::class, 'registerAdd'])->name('regi
 
 Route::get('/login', [LoginController::class, 'loginView'])->name('login.view');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.post');
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('student/dashboard', [UserController::class, 'dashboardView']);
 
-Route::get('admin/dashboard', [AdminController::class, 'adminDashboardView']);
+Route::get('admin/dashboard', [AdminController::class, 'adminDashboardView'])->name('admin.dashboard');

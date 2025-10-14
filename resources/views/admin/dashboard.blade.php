@@ -1,16 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.main')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
+@section('title', 'Dashboard')
 
-<body>
-    <h1>Admin dashboard</h1>
-    <p>Welcome {{ session()->get('user_name') }}</p>
-</body>
+@section('content')
+    <h1>Welcome to Admin Dashboard</h1>
+    <p>This is your main admin panel page.</p>
+    
+@endsection
 
-</html>
+
+
