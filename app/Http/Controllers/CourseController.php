@@ -57,8 +57,9 @@ class CourseController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|min:2|unique:courses,name,' . $id,
             'code' => 'required|string|unique:courses,code,' . $id,
-            // 'name' => 'required|string|min:2|unique:courses,name,' . $id,
-            // 'code' => 'required|string|unique:courses,code,' . $id,
+            // here i cannot add ',' after courses,name and courses,code thats why give me error
+            // 'name' => 'required|string|min:2|unique:courses,name' . $id,
+            // 'code' => 'required|string|unique:courses,code' . $id,
             'description' => 'required|string',
             'duration' => 'required|string',
             'price' => 'required|numeric',
@@ -69,6 +70,4 @@ class CourseController extends Controller
 
         return redirect()->route('admin.viewCourse')->with('success', 'Course updated successfully!');
     }
-
-
 }

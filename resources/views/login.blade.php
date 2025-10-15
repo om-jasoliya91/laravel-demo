@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <div class="container my-5">
+    <div class="container my-5" style="width:1000px">
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card shadow-sm">
