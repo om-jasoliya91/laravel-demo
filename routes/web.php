@@ -45,11 +45,16 @@ Route::middleware(['authCheck'])->prefix('admin')->group(function () {
     Route::post('editCourse/{id}', [CourseController::class, 'editCourse'])->name('admin.editCourse');
 });
 
+// Student Routes with authCheck middleware
 Route::middleware(['authCheck'])->prefix('student')->group(function () {
     Route::get('dashboard', [UserController::class, 'dashboardView'])->name('student.dashboard');
-    Route::get('course', [CourseController::class, 'studentViewCourse'])->name('student.course');
     Route::get('profile', [UserController::class, 'profileView'])->name('student.profile');
-
     Route::get('editProfile/{id}', [UserController::class, 'editViewProfile'])->name('student.editProfile');
     Route::post('editProfile/{id}', [UserController::class, 'editProfile'])->name('student.editProfile');
+
+    // Show all courses
+    Route::get('course', [UserController::class, 'studentViewCourse'])->name('student.course');
+
+    // Enroll in a course
+    Route::post('course/{course}', [UserController::class, 'enroll'])->name('student.enroll');
 });

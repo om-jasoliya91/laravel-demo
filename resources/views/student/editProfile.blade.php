@@ -68,8 +68,8 @@
 
                             <div class="mb-3 text-center">
                                 <label class="form-label d-block">Current Profile Picture:</label>
-                                <img src="{{ $user->profile_pic ? asset('storage/' . $user->profile_pic) : 'https://via.placeholder.com/150' }}"
-                                    alt="Profile Picture" class="rounded-circle mb-2" width="100" height="100">
+                                <img src="{{ asset('storage/' . $user->profile_pic) }}" alt="Profile Picture"
+                                    class="rounded-circle mb-2" width="100" height="100">
                             </div>
 
                             <div class="mb-3">

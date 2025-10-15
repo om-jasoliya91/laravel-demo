@@ -23,10 +23,10 @@
                             <p><i class="bi bi-envelope-fill"></i> Email: {{ $users->email }}</p>
                             <p><i class="bi bi-person-fill"></i> Age: {{ $users->age }}</p>
                             <p><i class="bi bi-geo-alt-fill"></i> City: {{ $users->city }}</p>
-                            <p><i class="bi bi-house-fill"></i> Address: ₹{{ $users->address }}</p>
+                            <p><i class="bi bi-house-fill"></i> Address: {{ $users->address }}</p>
                         </div>
 
-                        
+
                         <div class="mt-4">
                             <a href="{{ route('student.editProfile', $users->id) }}" class="btn btn-light btn-sm me-2">Edit
                                 Profile</a>

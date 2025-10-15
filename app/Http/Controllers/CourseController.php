@@ -70,13 +70,5 @@ class CourseController extends Controller
         return redirect()->route('admin.viewCourse')->with('success', 'Course updated successfully!');
     }
 
-    public function studentViewCourse()
-    {
-        $courses = Course::all();
-        // echo '<pre>';
-        // print_r($courses);
-        // echo '</pre>';
-        // exit;
-        return view('student.course', compact('courses'));
-    }
+
 }
