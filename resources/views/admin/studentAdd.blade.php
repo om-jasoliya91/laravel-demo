@@ -3,7 +3,7 @@
 @section('title', 'Add Student')
 
 @section('content')
-    <div class="container my-5">
+    <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card shadow-sm">
@@ -50,7 +50,7 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
-
+                            
                             <div class="mb-3">
                                 <label for="address" class="form-label">Address:</label>
                                 <textarea name="address" class="form-control" rows="3">{{ old('address') }}</textarea>
