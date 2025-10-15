@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -12,7 +13,10 @@ class AdminController extends Controller
 {
     public function adminDashboardView()
     {
-        return view('admin.dashboard');
+        $totalUsers = User::count();
+        $totalCourses = Course::count();
+        $totalEnrollments = Enrollment::count();
+        return view('admin.dashboard', compact('totalUsers', 'totalCourses', 'totalEnrollments'));
     }
 
     // Show Add Student Form
@@ -35,7 +39,7 @@ class AdminController extends Controller
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
-        $validated['role'] = 1; // Student role
+        $validated['role'] = 1;  // Student role
 
         // Handle profile upload
         if ($request->hasFile('profile_pic')) {
