@@ -39,7 +39,7 @@
                         @if ($course->status == 'active')
                             <form method="POST" action="{{ route('student.enroll', $course->id) }}">
                                 @csrf
-                                <button type="submit" class="btn btn-primary mt-auto">Enroll</button>
+                                <button type="submit" class="btn btn-primary mt-auto form-control">Enroll</button>
                             </form>
                         @else
                             <button class="btn btn-secondary mt-auto" disabled>Cannot Enroll</button>

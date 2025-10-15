@@ -1,50 +1,84 @@
 @extends('layouts.student')
-
-@section('title', 'Dashboard')
-
+@section('title', 'Profile')
 @section('content')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
-
-
     <div class="container my-5">
-        <div class="row justify-content-center">
-            @if ($users->id)
-                <div class="col-md-6 mb-4">
-                    <div class="profile-card text-center">
-                        <!-- Profile Image -->
-                        <img src="{{ asset('storage/' . $users->profile_pic) }}" alt="Profile" width="150"
-                            height="150" class="rounded-circle">
+        <h2 class="mb-4 text-center">My Profile & Enrollments</h2>
 
-                        <h3>{{ $users->name }}</h3>
+        {{-- Profile Card --}}
+        @if ($user)
+            <div class="card mb-5 shadow-sm">
+                <div class="card-body d-flex flex-column align-items-center text-center">
+                    {{-- Profile Image --}}
 
-                        <div class="profile-info mt-3 text-start">
-                            <p><i class="bi bi-envelope-fill"></i> Email: {{ $users->email }}</p>
-                            <p><i class="bi bi-person-fill"></i> Age: {{ $users->age }}</p>
-                            <p><i class="bi bi-geo-alt-fill"></i> City: {{ $users->city }}</p>
-                            <p><i class="bi bi-house-fill"></i> Address: {{ $users->address }}</p>
-                        </div>
+                    <img src="{{ asset('storage/' . $user->profile_pic) }}" alt="Profile" class="rounded-circle mb-3"
+                        width="120" height="120">
 
 
-                        <div class="mt-4">
-                            <a href="{{ route('student.editProfile', $users->id) }}" class="btn btn-light btn-sm me-2">Edit
-                                Profile</a>
-                            <a href="{{ route('student.dashboard') }}" class="btn btn-outline-light btn-sm">Back</a>
-                        </div>
+                    <h4 class="card-title">{{ $user->name }}</h4>
+                    <p class="text-muted mb-1">{{ $user->email }}</p>
+
+                    <div class="d-flex justify-content-center gap-4 mt-3">
+                        <div><strong>Age:</strong> {{ $user->age ?? '-' }}</div>
+                        <div><strong>City:</strong> {{ $user->city ?? '-' }}</div>
+                        <div><strong>Address:</strong> {{ $user->address ?? '-' }}</div>
                     </div>
+
+                    <a href="{{ route('student.editProfile', $user->id) }}" class="btn btn-primary btn-sm mt-3">Edit
+                        Profile</a>
                 </div>
-            @else
-                <div class="col-12">
-                    <p class="text-center text-muted">No user profile available.</p>
-                </div>
-            @endif
-        </div>
+            </div>
+        @else
+            <p class="text-center text-muted">User data not found.</p>
+        @endif
+
+        {{-- Enrollment Table --}}
+        <h4 class="mb-3">My Enrollments</h4>
+        @if ($enrollments && $enrollments->count() > 0)
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Course</th>
+                            <th>Code</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($enrollments as $enroll)
+                            <tr>
+                                <td>{{ $enroll->course->name ?? '-' }}</td>
+                                <td>{{ $enroll->course->code ?? '-' }}</td>
+                                <td>{{ $enroll->course->duration ?? '-' }}</td>
+                                <td>
+                                    @switch($enroll->status)
+                                        @case('pending')
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        @break
+
+                                        @case('accept')
+                                            <span class="badge bg-success">Accepted</span>
+                                        @break
+
+                                        @case('decline')
+                                            <span class="badge bg-danger">Declined</span>
+                                        @break
+
+                                        @default
+                                            <span class="badge bg-secondary">{{ $enroll->status }}</span>
+                                    @endswitch
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <p class="text-center text-muted">You have no enrollments yet.</p>
+        @endif
     </div>
-
-    <!-- Bootstrap Icons CDN -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
     </script>

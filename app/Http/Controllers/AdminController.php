@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\Models\Enrollment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -13,13 +15,13 @@ class AdminController extends Controller
         return view('admin.dashboard');
     }
 
-    // Show Add Student form
+    // Show Add Student Form
     public function studentAdd()
     {
-        return view('admin.studentAdd');  // create this blade file
+        return view('admin.studentAdd');
     }
 
-    // Handle Add Student form submission
+    // Store Student
     public function studentsStore(Request $request)
     {
         $validated = $request->validate([
@@ -33,7 +35,7 @@ class AdminController extends Controller
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
-        $validated['role'] = 1;  // student role
+        $validated['role'] = 1; // Student role
 
         // Handle profile upload
         if ($request->hasFile('profile_pic')) {
@@ -52,20 +54,12 @@ class AdminController extends Controller
     public function studentView()
     {
         $students = User::where('role', 1)->get();
-        //         echo "<pre>";
-        // print_r($students);
-        // echo "</pre>";
-        // exit;
-        return view('admin.studentView', compact('students'));  // create this blade file
+        return view('admin.studentView', compact('students'));
     }
 
     public function studentEditView($id)
     {
         $students = User::findOrFail($id);
-        //         echo "<pre>";
-        // print_r($students);
-        // echo "</pre>";
-        // exit;
         return view('admin.studentEdit', compact('students'));
     }
 
@@ -82,22 +76,21 @@ class AdminController extends Controller
             'profile_pic' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
         ]);
 
-        $student->name = $validated['name'];
-        $student->email = $validated['email'];
-        $student->age = $validated['age'];
-        $student->city = $validated['city'];
-        $student->address = $validated['address'];
+        $student->fill($validated);
 
         if ($request->hasFile('profile_pic')) {
             if ($student->profile_pic && Storage::disk('public')->exists($student->profile_pic)) {
                 Storage::disk('public')->delete($student->profile_pic);
             }
+
             $file = $request->file('profile_pic');
             $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('uploads', $filename, 'public');
             $student->profile_pic = $path;
         }
+
         $student->save();
+
         return redirect()->route('admin.studentView')->with('success', 'Student updated successfully.');
     }
 
@@ -111,6 +104,29 @@ class AdminController extends Controller
 
         $student->delete();
 
-         return redirect()->route('admin.studentView')->with('success', 'Student deleted successfully.');
+        return redirect()->route('admin.studentView')->with('success', 'Student deleted successfully.');
+    }
+
+    // View Enrollments
+    public function enrollView()
+    {
+        $enrollments = Enrollment::with(['user', 'course'])->get();
+        return view('admin.enrollView', compact('enrollments'));
+    }
+
+    // Accept Enrollment
+    public function acceptEnrollment($id)
+    {
+        $enrollment = Enrollment::findOrFail($id);
+        $enrollment->update(['status' => 'accept']);
+        return redirect()->back()->with('success', 'Enrollment accepted successfully.');
+    }
+
+    // Decline Enrollment
+    public function declineEnrollment($id)
+    {
+        $enrollment = Enrollment::findOrFail($id);
+        $enrollment->update(['status' => 'decline']);
+        return redirect()->back()->with('success', 'Enrollment declined successfully.');
     }
 }

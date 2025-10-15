@@ -46,7 +46,7 @@
             </a>
             <div class="collapse ps-3" id="enrollmentsMenu">
                 <ul class="list-unstyled fw-normal pb-1 small">
-                    {{-- <li><a href="{{ route('admin.enrollments.view') }}" class="nav-link text-white">View Enrollments</a></li> --}}
+                    <li><a href="{{ route('admin.enrollView') }}" class="nav-link text-white">View Enrollments</a></li>
                 </ul>
             </div>
         </li>
