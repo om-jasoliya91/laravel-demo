@@ -2,10 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-// use Illuminate\Support\Facades\header;
-use Closure;
 
 class AuthCheck
 {
@@ -16,14 +15,14 @@ class AuthCheck
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->session()->has('user_role')) {
-            // if session not set, redirect to login
-            return redirect('/login')->with('error', 'Please login again.');
+        // Check if user is logged in by checking session
+        if (!$request->session()->has('user_role') || !$request->session()->has('user_id')) {
+            return redirect()->route('login')->with('error', 'Please login again.');
         }
 
         $response = $next($request);
 
-        // prevent browser back after logout
+        // Prevent browser back after logout
         return $response
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
             ->header('Pragma', 'no-cache')
