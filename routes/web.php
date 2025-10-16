@@ -8,22 +8,18 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Welcome
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', fn() => view('welcome'));
 
-// Register
+// Register & Login
 Route::get('/register', [RegisterController::class, 'registerView'])->name('register.view');
 Route::post('/register', [RegisterController::class, 'registerAdd'])->name('register.post');
 
-// Login
 Route::get('/login', [LoginController::class, 'loginView'])->name('login.view');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.post');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// -------------------- Admin Routes --------------------
+// Admin Routes
 Route::middleware(['authCheck'])->prefix('admin')->group(function () {
-
     Route::get('dashboard', [AdminController::class, 'adminDashboardView'])->name('admin.dashboard');
 
     // Students
@@ -48,19 +44,16 @@ Route::middleware(['authCheck'])->prefix('admin')->group(function () {
     Route::post('enrollment/decline/{id}', [AdminController::class, 'declineEnrollment'])->name('admin.enrollment.decline');
 });
 
-// -------------------- Student Routes --------------------
+// Student Routes
 Route::middleware(['authCheck'])->prefix('student')->group(function () {
-
     Route::get('dashboard', [UserController::class, 'dashboardView'])->name('student.dashboard');
 
-    // Profile + enrollments
     Route::get('profile', [UserController::class, 'myEnrollments'])->name('student.profile');
-
-    // Edit profile
     Route::get('editProfile/{id}', [UserController::class, 'editViewProfile'])->name('student.editProfile');
     Route::post('editProfile/{id}', [UserController::class, 'editProfile'])->name('student.updateProfile');
 
-    // Courses
     Route::get('course', [UserController::class, 'studentViewCourse'])->name('student.course');
     Route::post('course/{course}', [UserController::class, 'enroll'])->name('student.enroll');
+
+    Route::get('notifications', [UserController::class, 'notifications'])->name('student.notifications');
 });

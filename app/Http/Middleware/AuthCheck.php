@@ -8,21 +8,28 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthCheck
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check if user is logged in by checking session
-        if (!$request->session()->has('user_role') || !$request->session()->has('user_id')) {
-            return redirect()->route('login')->with('error', 'Please login again.');
+        $isAdminRoute = $request->is('admin/*');
+        $isStudentRoute = $request->is('student/*');
+
+        $userRole = $request->session()->get('user_role');
+        $isLoggedIn = $request->session()->has('user_id');
+
+        if (!$isLoggedIn) {
+            return redirect()->route('login.view')->with('error', 'Please login first.');
+        }
+
+        if ($isAdminRoute && $userRole != 0) {
+            return redirect()->route('login.view')->with('error', 'Access denied: Admins only.');
+        }
+
+        if ($isStudentRoute && $userRole != 1) {
+            return redirect()->route('login.view')->with('error', 'Access denied: Students only.');
         }
 
         $response = $next($request);
 
-        // Prevent browser back after logout
         return $response
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
             ->header('Pragma', 'no-cache')

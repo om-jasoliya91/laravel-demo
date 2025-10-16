@@ -23,15 +23,19 @@ class LoginController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if ($user && Hash::check($request->password, $user->password)) {
-            // Store session data
-            $request->session()->put('user_id', $user->id);
-            $request->session()->put('user_name', $user->name);
-            $request->session()->put('user_role', $user->role);
+            // Clear old sessions
+            $request->session()->flush();
 
-            // Redirect by role
+            // Store session data based on role
+            $request->session()->put('user_id', $user->id);
+            $request->session()->put('user_role', $user->role);
+            $request->session()->put('user_name', $user->name);
+
             if ($user->role == 0) {
+                // Admin
                 return redirect()->route('admin.dashboard')->with('success', 'Welcome Admin!');
             } else {
+                // Student
                 return redirect()->route('student.dashboard')->with('success', 'Welcome Student!');
             }
         }

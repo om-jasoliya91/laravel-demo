@@ -33,6 +33,9 @@
             <p class="text-center text-muted">User data not found.</p>
         @endif
 
+
+
+
         {{-- Enrollment Table --}}
         <h4 class="mb-3">My Enrollments</h4>
         @if ($enrollments && $enrollments->count() > 0)

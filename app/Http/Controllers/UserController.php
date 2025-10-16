@@ -2,40 +2,51 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Course;
 use App\Models\Enrollment;
-use App\Models\User;
+use App\Notifications\AdminNewEnrollment;
+use App\Notifications\EnrollmentStatusChanged;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
-    // Dashboard view
     public function dashboardView()
     {
-        return view('student.dashboard');
+        $userId = session('user_id');
+        $user = User::findOrFail($userId);
+
+        $totalCourses = Course::count();
+        $enrollmentsCount = Enrollment::where('user_id', $userId)->count();
+
+        $notifications = $user->unreadNotifications()->latest()->take(5)->get();
+
+        return view('student.dashboard', compact('user','totalCourses','enrollmentsCount','notifications'));
     }
 
-    // Edit profile form
+    public function myEnrollments()
+    {
+        $userId = session('user_id');
+        $user = User::findOrFail($userId);
+
+        $enrollments = Enrollment::with('course')
+            ->where('user_id', $userId)
+            ->get();
+
+        return view('student.profile', compact('user', 'enrollments'));
+    }
+
     public function editViewProfile($id)
     {
         $userId = session('user_id');
-        if (!$userId) {
-            return redirect()->route('login.view')->with('error', 'Please login first.');
-        }
-
-        $user = User::findOrFail($id);
+        $user = User::findOrFail($userId);
         return view('student.editProfile', compact('user'));
     }
 
-    // Update profile
     public function editProfile(Request $request, $id)
     {
         $userId = session('user_id');
-        if (!$userId) {
-            return redirect()->route('login.view')->with('error', 'Please login first.');
-        }
-
         $user = User::findOrFail($id);
 
         $validated = $request->validate([
@@ -51,78 +62,57 @@ class UserController extends Controller
             if ($user->profile_pic && Storage::disk('public')->exists($user->profile_pic)) {
                 Storage::disk('public')->delete($user->profile_pic);
             }
-            $file = $request->file('profile_pic');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs('uploads', $filename, 'public');
+            $path = $request->file('profile_pic')->store('uploads', 'public');
             $validated['profile_pic'] = $path;
         }
 
         $user->update($validated);
 
-        return redirect()->route('student.profile')->with('success', 'Profile updated successfully.');
+        return redirect()->route('student.profile')->with('success', 'Profile updated.');
     }
 
-    // View all courses with enrollment status
     public function studentViewCourse()
     {
         $userId = session('user_id');
-        if (!$userId) {
-            return redirect()->route('login.view')->with('error', 'Please login first.');
-        }
-
         $courses = Course::all();
         $enrollments = Enrollment::where('user_id', $userId)
-            ->pluck('status', 'course_id')
-            ->toArray();
+            ->pluck('status', 'course_id')->toArray();
 
-        return view('student.course', compact('courses', 'enrollments'));
+        return view('student.course', compact('courses','enrollments'));
     }
 
-    // Enroll in a course
     public function enroll($courseId)
     {
         $userId = session('user_id');
-        if (!$userId) {
-            return redirect()->route('login.view')->with('error', 'Please login first.');
-        }
-
         $user = User::findOrFail($userId);
         $course = Course::findOrFail($courseId);
 
-        if ($course->status !== 'active') {
-            return redirect()->back()->with('error', 'Cannot enroll in inactive course.');
+        if (Enrollment::where('user_id', $user->id)->where('course_id', $course->id)->exists()) {
+            return redirect()->back()->with('error', 'Already applied.');
         }
 
-        $existing = Enrollment::where('user_id', $user->id)
-            ->where('course_id', $course->id)
-            ->first();
-
-        if ($existing) {
-            return redirect()->back()->with('error', 'Already applied for this course.');
-        }
-
-        Enrollment::create([
+        $enrollment = Enrollment::create([
             'user_id' => $user->id,
             'course_id' => $course->id,
             'status' => 'pending',
         ]);
 
-        return redirect()->back()->with('success', 'Enrollment request submitted!');
-    }
-
-    // Show current user's profile & enrollments
-    public function myEnrollments()
-    {
-        $userId = session('user_id');
-        if (!$userId) {
-            return redirect()->route('login.view')->with('error', 'Please login first.');
+        // Notify admins
+        $admins = User::where('role', 0)->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new AdminNewEnrollment($enrollment));
         }
 
-        $user = User::findOrFail($userId);
-        $enrollments = Enrollment::with('course')
-            ->where('user_id', $user->id)
-            ->get();
+        return redirect()->back()->with('success', 'Enrollment requested!');
+    }
 
-        return view('student.profile', compact('user', 'enrollments'));
+    public function notifications()
+    {
+        $userId = session('user_id');
+        $user = User::findOrFail($userId);
+
+        $notifications = $user->unreadNotifications()->latest()->get();
+
+        return view('student.notification', compact('notifications'));
     }
 }
