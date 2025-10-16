@@ -5,6 +5,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
 // Welcome
@@ -18,8 +19,8 @@ Route::get('/login', [LoginController::class, 'loginView'])->name('login.view');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.post');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Admin Routes
-Route::middleware(['authCheck'])->prefix('admin')->group(function () {
+// ------------------ Admin Routes ------------------
+Route::middleware(['authCheck:admin'])->prefix('admin')->group(function () {
     Route::get('dashboard', [AdminController::class, 'adminDashboardView'])->name('admin.dashboard');
 
     // Students
@@ -44,8 +45,8 @@ Route::middleware(['authCheck'])->prefix('admin')->group(function () {
     Route::post('enrollment/decline/{id}', [AdminController::class, 'declineEnrollment'])->name('admin.enrollment.decline');
 });
 
-// Student Routes
-Route::middleware(['authCheck'])->prefix('student')->group(function () {
+// ------------------ Student Routes ------------------
+Route::middleware(['authCheck:student'])->prefix('student')->group(function () {
     Route::get('dashboard', [UserController::class, 'dashboardView'])->name('student.dashboard');
 
     Route::get('profile', [UserController::class, 'myEnrollments'])->name('student.profile');
@@ -57,3 +58,18 @@ Route::middleware(['authCheck'])->prefix('student')->group(function () {
 
     Route::get('notifications', [UserController::class, 'notifications'])->name('student.notifications');
 });
+
+// Route::get('/session-debug', function () {
+//     $sessionFiles = \File::files(storage_path('framework/sessions'));
+//     $latestFile = end($sessionFiles);
+//     $payload = file_get_contents($latestFile);
+//     $data = unserialize($payload);
+//     dd($data);
+// });
+
+// Route::get('/session-view', function () {
+//     // Get all session data
+//     $all = session()->all();
+
+//     dd($all);
+// });

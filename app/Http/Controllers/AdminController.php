@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\User;
 use App\Notifications\EnrollmentStatusChanged;
 use Illuminate\Http\Request;
 
@@ -13,19 +13,22 @@ class AdminController extends Controller
     // Dashboard
     public function adminDashboardView()
     {
-        $totalUsers = User::count();
+        // Counts
+        $totalUsers = User::where('role', 1)->count();  // only students
         $totalCourses = Course::count();
         $totalEnrollments = Enrollment::count();
 
-        $adminId = session('user_id');
+        // Get admin from session
+        $adminId = session('admin_id');  // <-- use admin_id, not user_id
         $admin = User::find($adminId);
 
+        // Get notifications if admin exists
         $notifications = collect();
-        if ($admin && $admin->role == 0) {
+        if ($admin && $admin->role === 0) {
             $notifications = $admin->unreadNotifications()->latest()->take(5)->get();
         }
 
-        return view('admin.dashboard', compact('totalUsers','totalCourses','totalEnrollments','notifications'));
+        return view('admin.dashboard', compact('totalUsers', 'totalCourses', 'totalEnrollments', 'notifications'));
     }
 
     // Show all students
@@ -52,7 +55,7 @@ class AdminController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
-            'role' => 1, // student
+            'role' => 1,  // student
         ]);
 
         return redirect()->route('admin.studentView')->with('success', 'Student added successfully.');
@@ -70,7 +73,7 @@ class AdminController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$student->id,
+            'email' => 'required|email|unique:users,email,' . $student->id,
         ]);
 
         $student->update($validated);

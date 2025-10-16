@@ -1,12 +1,29 @@
+@php
+    // Determine role and name
+    if(session()->has('admin_id')) {
+        $role = 0;
+        $name = session('admin_name');
+        $dashboardRoute = route('admin.dashboard');
+        $panelName = 'Admin Panel';
+    } elseif(session()->has('student_id')) {
+        $role = 1;
+        $name = session('student_name');
+        $dashboardRoute = route('student.dashboard');
+        $panelName = 'Student Panel';
+    } else {
+        $role = null;
+        $name = 'Guest';
+        $dashboardRoute = url('/');
+        $panelName = 'Panel';
+    }
+    // echo "<pre>";
+    // print_r($role);
+    // echo "</pre>";
+    // exit;
+@endphp
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        @php
-            $role = session('user_role');
-            $name = session('user_name') ?? 'Guest';
-            $dashboardRoute = $role == 0 ? route('admin.dashboard') : route('student.dashboard');
-            $panelName = $role == 0 ? 'Admin Panel' : 'Student Panel';
-        @endphp
-
         <a class="navbar-brand" href="{{ $dashboardRoute }}">
             {{ $panelName }}
         </a>
@@ -21,10 +38,12 @@
                 Hello, {{ $name }}
             </span>
 
-            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+            @if($role !== null)
+            <form action="{{ route('logout', $role == 0 ? 'admin' : 'student') }}" method="POST" class="d-inline">
                 @csrf
                 <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
             </form>
+            @endif
         </div>
     </div>
 </nav>

@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\User;
 use App\Notifications\AdminNewEnrollment;
-use App\Notifications\EnrollmentStatusChanged;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
+    // Student Dashboard
     public function dashboardView()
     {
-        $userId = session('user_id');
+        $userId = session('student_id');
         $user = User::findOrFail($userId);
 
         $totalCourses = Course::count();
@@ -22,12 +22,13 @@ class UserController extends Controller
 
         $notifications = $user->unreadNotifications()->latest()->take(5)->get();
 
-        return view('student.dashboard', compact('user','totalCourses','enrollmentsCount','notifications'));
+        return view('student.dashboard', compact('user', 'totalCourses', 'enrollmentsCount', 'notifications'));
     }
 
+    // Student Profile / Enrollments
     public function myEnrollments()
     {
-        $userId = session('user_id');
+        $userId = session('student_id');
         $user = User::findOrFail($userId);
 
         $enrollments = Enrollment::with('course')
@@ -37,17 +38,20 @@ class UserController extends Controller
         return view('student.profile', compact('user', 'enrollments'));
     }
 
-    public function editViewProfile($id)
+    // Edit Profile View
+    public function editViewProfile()
     {
-        $userId = session('user_id');
+        $userId = session('student_id');
         $user = User::findOrFail($userId);
+
         return view('student.editProfile', compact('user'));
     }
 
-    public function editProfile(Request $request, $id)
+    // Update Profile
+    public function editProfile(Request $request)
     {
-        $userId = session('user_id');
-        $user = User::findOrFail($id);
+        $userId = session('student_id');
+        $user = User::findOrFail($userId);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -68,27 +72,30 @@ class UserController extends Controller
 
         $user->update($validated);
 
-        return redirect()->route('student.profile')->with('success', 'Profile updated.');
+        return redirect()->route('student.profile')->with('success', 'Profile updated successfully.');
     }
 
+    // View Courses for Student
     public function studentViewCourse()
     {
-        $userId = session('user_id');
+        $userId = session('student_id');
         $courses = Course::all();
         $enrollments = Enrollment::where('user_id', $userId)
-            ->pluck('status', 'course_id')->toArray();
+            ->pluck('status', 'course_id')
+            ->toArray();
 
-        return view('student.course', compact('courses','enrollments'));
+        return view('student.course', compact('courses', 'enrollments'));
     }
 
+    // Enroll in Course
     public function enroll($courseId)
     {
-        $userId = session('user_id');
+        $userId = session('student_id');
         $user = User::findOrFail($userId);
         $course = Course::findOrFail($courseId);
 
         if (Enrollment::where('user_id', $user->id)->where('course_id', $course->id)->exists()) {
-            return redirect()->back()->with('error', 'Already applied.');
+            return redirect()->back()->with('error', 'You have already applied for this course.');
         }
 
         $enrollment = Enrollment::create([
@@ -97,21 +104,24 @@ class UserController extends Controller
             'status' => 'pending',
         ]);
 
-        // Notify admins
+        // Notify all admins
         $admins = User::where('role', 0)->get();
         foreach ($admins as $admin) {
             $admin->notify(new AdminNewEnrollment($enrollment));
         }
 
-        return redirect()->back()->with('success', 'Enrollment requested!');
+        return redirect()->back()->with('success', 'Enrollment requested successfully!');
     }
 
     public function notifications()
     {
-        $userId = session('user_id');
-        $user = User::findOrFail($userId);
+        $studentId = session('student_id');
+        $student = User::find($studentId);
 
-        $notifications = $user->unreadNotifications()->latest()->get();
+        $notifications = collect();
+        if ($student) {
+            $notifications = $student->unreadNotifications()->latest()->get();
+        }
 
         return view('student.notification', compact('notifications'));
     }

@@ -42,7 +42,12 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
-
+                             <div class="mb-3">
+                            <select name="role" required class="form-select">
+                                <option value="0">Admin</option>
+                                <option value="1">Student</option>
+                            </select>
+                            </div>
                             <button type="submit" class="btn btn-primary w-100">Login</button>
                             <div class="mt-3 text-center">
                                 <a href="{{ route('register.view') }}">Create new account</a>

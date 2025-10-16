@@ -8,44 +8,52 @@ use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
+    // Show login form
     public function loginView()
     {
         return view('login');
     }
 
+    // Authenticate user/admin
     public function authenticate(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'role' => 'required|in:0,1',  // 0 = admin, 1 = student
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        // Find user with matching email and role
+        $user = User::where('email', $request->email)
+            ->where('role', $request->role)
+            ->first();
 
-        if ($user && Hash::check($request->password, $user->password)) {
-            // Clear old sessions
-            $request->session()->flush();
-
-            // Store session data based on role
-            $request->session()->put('user_id', $user->id);
-            $request->session()->put('user_role', $user->role);
-            $request->session()->put('user_name', $user->name);
-
-            if ($user->role == 0) {
-                // Admin
-                return redirect()->route('admin.dashboard')->with('success', 'Welcome Admin!');
-            } else {
-                // Student
-                return redirect()->route('student.dashboard')->with('success', 'Welcome Student!');
-            }
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return redirect()->back()->with('error', 'Invalid credentials.');
         }
 
-        return redirect()->back()->with('error', 'Invalid email or password.');
+        // Set session based on role
+        if ($user->role == 0) {
+            $request->session()->put('admin_id', $user->id);
+            $request->session()->put('admin_name', $user->name);
+            return redirect()->route('admin.dashboard');
+        }
+
+        if ($user->role == 1) {
+            $request->session()->put('student_id', $user->id);
+            $request->session()->put('student_name', $user->name);
+            return redirect()->route('student.dashboard');
+        }
     }
 
     public function logout(Request $request)
     {
-        $request->session()->flush();
-        return redirect()->route('login.view')->with('success', 'You have logged out successfully.');
+        if ($request->session()->has('admin_id')) {
+            $request->session()->forget(['admin_id', 'admin_name', 'user_role']);
+        } elseif ($request->session()->has('student_id')) {
+            $request->session()->forget(['student_id', 'student_name', 'user_role']);
+        }
+
+        return redirect()->route('login.view')->with('success', 'Logged out successfully.');
     }
 }
