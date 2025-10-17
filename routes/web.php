@@ -7,10 +7,9 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
-// Welcome
+// ------------------ Public Routes ------------------
 Route::get('/', fn() => view('welcome'));
 
 // Register & Login
@@ -20,15 +19,11 @@ Route::post('/register', [RegisterController::class, 'registerAdd'])->name('regi
 Route::get('/login', [LoginController::class, 'loginView'])->name('login.view');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.post');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// Password Reset - Web
 Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-
-// Send reset link
 Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-
-// Show reset password form
 Route::get('reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-
-// Handle password reset
 Route::post('reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 
 // ------------------ Admin Routes ------------------
@@ -70,18 +65,3 @@ Route::middleware(['authCheck:student'])->prefix('student')->group(function () {
 
     Route::get('notifications', [UserController::class, 'notifications'])->name('student.notifications');
 });
-
-// Route::get('/session-debug', function () {
-//     $sessionFiles = \File::files(storage_path('framework/sessions'));
-//     $latestFile = end($sessionFiles);
-//     $payload = file_get_contents($latestFile);
-//     $data = unserialize($payload);
-//     dd($data);
-// });
-
-// Route::get('/session-view', function () {
-//     // Get all session data
-//     $all = session()->all();
-
-//     dd($all);
-// });
