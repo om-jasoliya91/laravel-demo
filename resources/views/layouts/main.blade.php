@@ -10,7 +10,7 @@
 
     @include('partials.header')
 
-    <div class="d-flex flex-grow-1">
+    <div class="d-flex grow">
         @include('partials.sidebar')
 
         <!-- Main Content -->

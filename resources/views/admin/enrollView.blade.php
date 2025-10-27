@@ -82,6 +82,10 @@
                 @endforelse
             </tbody>
         </table>
+        <!-- Bootstrap Pagination -->
+        <div class="d-flex justify-content-center">
+            {{ $enrollments->links() }}
+        </div>
     </div>
 
 @endsection

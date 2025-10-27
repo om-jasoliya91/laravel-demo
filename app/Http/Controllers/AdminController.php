@@ -7,6 +7,7 @@ use App\Models\Enrollment;
 use App\Models\User;
 use App\Notifications\EnrollmentStatusChanged;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 
 class AdminController extends Controller
 {
@@ -88,10 +89,15 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Student deleted successfully.');
     }
 
+    public function __construct()
+    {
+        Paginator::useBootstrap();
+    }
+
     // Enrollments
     public function enrollView()
     {
-        $enrollments = Enrollment::with(['user', 'course'])->get();
+        $enrollments = Enrollment::with(['user', 'course'])->paginate(5);
         return view('admin.enrollView', compact('enrollments'));
     }
 

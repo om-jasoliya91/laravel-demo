@@ -4,25 +4,17 @@
 
 @section('content')
 @php
-    // Determine role and name
-    if(session()->has('admin_id')) {
-        $role = 0;
-        $name = session('admin_name');
-        $totalUsers = $totalUsers ?? 0;
-        $totalCourses = $totalCourses ?? 0;
-        $totalEnrollments = $totalEnrollments ?? 0;
-        $notifications = $notifications ?? collect();
-    } elseif(session()->has('student_id')) {
-        $role = 1;
-        $name = session('student_name');
-        $totalCourses = $totalCourses ?? 0;
-        $enrollmentsCount = $enrollmentsCount ?? 0;
-        $notifications = $notifications ?? collect();
-    } else {
-        $role = null;
-        $name = 'Guest';
-    }
+    $role = session()->has('admin_id') ? 0 : (session()->has('student_id') ? 1 : null);
+    $name = session('admin_name') ?? session('student_name') ?? 'Guest';
+
+    // // Default values
+    // $totalUsers = $totalUsers ?? 0;
+    // $totalCourses = $totalCourses ?? 0;
+    // $totalEnrollments = $totalEnrollments ?? 0;
+    // $enrollmentsCount = $enrollmentsCount ?? 0;
+    $notifications = $notifications ?? collect();
 @endphp
+
 
 <div class="container my-5">
     <h2 class="mb-4">Welcome, {{ $name }}</h2>

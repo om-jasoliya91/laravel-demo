@@ -4,9 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 
 class CourseController extends Controller
 {
+    public function __construct()
+    {
+        Paginator::useBootstrap();
+    }
+
     public function courseAddView()
     {
         return view('admin.addCourse');
@@ -28,7 +34,7 @@ class CourseController extends Controller
 
     public function viewCourse()
     {
-        $courses = Course::all();
+        $courses = Course::paginate(5);
         return view('admin.viewCourse', compact('courses'));
     }
 
@@ -44,7 +50,7 @@ class CourseController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:courses,code,'.$course->id,
+            'code' => 'required|string|max:50|unique:courses,code,' . $course->id,
             'duration' => 'nullable|string|max:50',
             'status' => 'required|in:active,inactive',
         ]);
