@@ -10,16 +10,15 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'name'       => 'required|string|min:2|max:255',
-            'email'      => 'required|email|unique:users,email',
-            'age'        => 'required|integer|min:15|max:35',
-            'city'       => 'required|string|max:255',
-            'address'    => 'required|string|max:500',
-            'password'   => 'required|string|min:6|confirmed',
+            'name' => 'required|string|min:2|max:255',
+            'email' => 'required|email|unique:users,email',
+            'age' => 'required|integer|min:15|max:35',
+            'city' => 'required|string|max:255',
+            'address' => 'required|string|max:500',
+            'password' => 'required|string|min:6|confirmed',
             'profile_pic' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
@@ -46,11 +45,10 @@ class UserController extends Controller
         ], 201);
     }
 
-
     public function login(Request $request)
     {
         $request->validate([
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required'
         ]);
 
@@ -68,15 +66,14 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
-            'data'    => new UserResource($user),
-            'token'   => $token
+            'data' => new UserResource($user),
+            'token' => $token
         ]);
     }
 
-
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json([
             'success' => true,
@@ -84,34 +81,14 @@ class UserController extends Controller
         ]);
     }
 
-
-
-    // List users
-    public function index()
+    public function fetchUser(Request $request)
     {
-        return UserResource::collection(User::latest()->get());
+        return new UserResource($request->user());
     }
 
-    public function store(Request $request)
+    // It is return in fe current login user
+    public function index(Request $request)
     {
-
-    }
-
-
-    public function show(string $id)
-    {
-        return new UserResource(User::findOrFail($id));
-    }
-
-
-    public function update(Request $request, string $id)
-    {
-
-    }
-
-
-    public function destroy(string $id)
-    {
-
+        // return new UserResource($request->user());
     }
 }
