@@ -26,4 +26,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/allCourse', [CourseController::class, 'allCourse']);
     Route::post('update-profile', [UserController::class, 'updateProfile']);
     Route::delete('delete-user-account', [UserController::class, 'deleteUserAccount']);
+    Route::post('/enroll', [CourseController::class, 'enrollCourses']);
 });
