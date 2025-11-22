@@ -121,4 +121,25 @@ class UserController extends Controller
             'data' => new UserResource($user),  // return updated user
         ]);
     }
+
+    public function deleteUserAccount(Request $request)
+    {
+        $user = $request->user();
+
+        // delete profile image
+        if ($user->profile_pic && file_exists(storage_path('app/public/' . $user->profile_pic))) {
+            unlink(storage_path('app/public/' . $user->profile_pic));
+        }
+
+        // delete only the current logged-in token
+        $user->currentAccessToken()->delete();
+
+        // delete user from DB
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Account deleted successfully'
+        ]);
+    }
 }
