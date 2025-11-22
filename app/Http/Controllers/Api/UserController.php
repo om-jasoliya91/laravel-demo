@@ -35,13 +35,12 @@ class UserController extends Controller
         $user = User::create($validated);
 
         // Sanctum token
-        $token = $user->createToken('api_token')->plainTextToken;
+        // $token = $user->createToken('api_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
             'message' => 'User registered successfully',
-            'data' => new UserResource($user),
-            'token' => $token
+            'data' => $user
         ], 201);
     }
 
@@ -86,9 +85,40 @@ class UserController extends Controller
         return new UserResource($request->user());
     }
 
-    // It is return in fe current login user
-    public function index(Request $request)
+    public function updateProfile(Request $request)
     {
-        // return new UserResource($request->user());
+        $user = $request->user();  // current logged-in user
+
+        $request->validate([
+            'name' => 'required|string|min:2|max:255',
+            'age' => 'nullable|integer|min:15|max:35',
+            'city' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:500',
+            'profile_pic' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        // Upload new profile image
+        if ($request->hasFile('profile_pic')) {
+            // delete old image (optional but recommended)
+            if ($user->profile_pic && file_exists(storage_path('app/public/' . $user->profile_pic))) {
+                unlink(storage_path('app/public/' . $user->profile_pic));
+            }
+
+            $user->profile_pic = $request->file('profile_pic')->store('uploads', 'public');
+        }
+
+        // Update fields
+        $user->update([
+            'name' => $request->name,
+            'age' => $request->age,
+            'city' => $request->city,
+            'address' => $request->address,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile updated successfully',
+            'data' => new UserResource($user),  // return updated user
+        ]);
     }
 }

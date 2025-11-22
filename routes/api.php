@@ -24,5 +24,5 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/allCourse', [CourseController::class, 'allCourse']);
-    Route::post('/update-profile', [CourseController::class, 'courseUpdate']);
+    Route::post('update-profile', [UserController::class, 'updateProfile']);
 });
