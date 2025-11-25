@@ -14,6 +14,7 @@ class CourseResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $userId = auth()->id();
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -22,7 +23,8 @@ class CourseResource extends JsonResource
             'duration' => $this->duration,
             'price' => $this->price,
             'status' => $this->status,
-            'created_at' => $this->created_at->format('Y-m-d H:i:s')
+            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'is_applied' => $this->enrollments()->where('user_id', $userId)->exists(),
         ];
     }
 }
