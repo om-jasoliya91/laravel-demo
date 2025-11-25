@@ -26,6 +26,7 @@ class AdminNewEnrollment extends Notification
     {
         // Make sure this returns an array, NOT a JSON string
         return [
+            'type' => 'admin_new_enrollment',
             'user_name' => $this->enrollment->user->name,
             'course_name' => $this->enrollment->course->name,
             'enrollment_id' => $this->enrollment->id,

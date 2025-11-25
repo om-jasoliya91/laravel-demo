@@ -28,3 +28,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('delete-user-account', [UserController::class, 'deleteUserAccount']);
     Route::post('/enroll', [CourseController::class, 'enrollCourses']);
 });
+
+use App\Http\Controllers\Api\NotificationController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'getNotifications']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAll']);
+});

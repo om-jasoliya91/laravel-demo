@@ -25,6 +25,7 @@ class EnrollmentStatusChanged extends Notification
     public function toDatabase($notifiable)
     {
         return [
+            'type' => 'Statu Changed',
             'course_name' => $this->enrollment->course->name,
             'status' => $this->enrollment->status,
             'message' => "Your enrollment for {$this->enrollment->course->name} was {$this->enrollment->status}.",
